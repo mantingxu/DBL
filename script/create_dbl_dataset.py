@@ -52,7 +52,7 @@ def k_nearest_neighbors(X, query, k):
 
 def get_top3_DBL(query_pic_path, pillID):
     # image related
-    image_folder = '../dataset/train/{pillID}/*.png'.format(pillID=pillID)
+    image_folder = '../dataset/train_template/{pillID}/*.png'.format(pillID=pillID)
     for image_path in glob.glob(image_folder):
         feature_vector = get_vector(image_path)
         vector_list.append(feature_vector)
@@ -121,5 +121,5 @@ myRes = np.zeros(len(many_res), dtype=object)
 for i in range(0, len(many_res)):
     myRes[i] = many_res[i]
 
-np.save('../numpy/myResTrain0520', myRes)
-file = np.load('../numpy/myResTrain0520.npy', allow_pickle=True)
+np.save('../numpy/myResTrain0520_1', myRes)
+# file = np.load('../numpy/myResTrain0520.npy', allow_pickle=True)

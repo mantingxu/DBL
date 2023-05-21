@@ -20,9 +20,10 @@ class MyDBL(nn.Module):
         tanh_layer = nn.Tanh()
         zx_prime = tanh_layer(zx)
         zi_prime = tanh_layer(zi)
-        hadamard = zx_prime * zi_prime
-        # res = nn.Tanh(hadamard)
-        return hadamard
+        res = zx_prime * zi_prime
+        # hadamard = zx * zi
+        # res = tanh_layer(hadamard)
+        return res
 
 
 class MyMLP(nn.Module):

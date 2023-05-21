@@ -37,7 +37,7 @@ class ExampleDataset(Dataset):
 test_dataset = ExampleDataset('../numpy/myResTest0520.npy')
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=True)
 
-path = "../weight/dbl.pth"
+path = "../weight/dbl2.pth"
 model.load_state_dict(torch.load(path))
 model.eval()
 count = 0

@@ -34,39 +34,32 @@ class ExampleDataset(Dataset):
         return len(self.data)
 
 
+dataset = ExampleDataset('../numpy/myResTrain0520_1.npy')
+train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
 test_dataset = ExampleDataset('../numpy/myResTest0520.npy')
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=True)
 
-path = "../weight/dbl2.pth"
+path = "../weight/dbl3.pth"
 model.load_state_dict(torch.load(path))
 model.eval()
 count = 0
-# model.load_state_dict(best_model_wts)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 with torch.no_grad():
-    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(test_loader):
+    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(train_loader):
         imagesQuery = imagesQuery.to(device)
         imagesOne = imagesOne.to(device)
         imagesTwo = imagesTwo.to(device)
         imagesThree = imagesThree.to(device)
-        labels = Fun.one_hot(labels, num_classes=3)
-        labels = labels.squeeze(1)
-        labels = labels.to(torch.int64)
         labels = labels.to(device)
-        # print(labels)
         outputs = model(imagesQuery, imagesOne, imagesTwo, imagesThree)
-
         value, indices = torch.max(outputs.data, 1)
-        # print(torch.max(outputs.data, 1))
-        value_label, indices_label = torch.max(labels.data, 1)
 
-        print(indices_label.item())
-        print(indices.item())
-        if indices_label.item() == indices.item():
-            count += 1
+        count += (indices == labels).sum().item()
+        # if indices_label.item() == indices.item():
+        #     count += 1
 
         # _, predicted = torch.max(outputs, 1)
         # print(torch.max(outputs, 1))
-acc = count / test_dataset.__len__()
+acc = count / dataset.__len__()
 print('acc: ', acc)

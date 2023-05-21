@@ -36,7 +36,7 @@ class ExampleDataset(Dataset):
 
 dataset = ExampleDataset('../numpy/myResTrain0520_1.npy')
 train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
-test_dataset = ExampleDataset('../numpy/myResTest0520.npy')
+test_dataset = ExampleDataset('../numpy/myResTest0520_2.npy')
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=True)
 
 path = "../weight/dbl3.pth"
@@ -46,7 +46,7 @@ count = 0
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 with torch.no_grad():
-    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(train_loader):
+    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(test_loader):
         imagesQuery = imagesQuery.to(device)
         imagesOne = imagesOne.to(device)
         imagesTwo = imagesTwo.to(device)
@@ -61,5 +61,6 @@ with torch.no_grad():
 
         # _, predicted = torch.max(outputs, 1)
         # print(torch.max(outputs, 1))
-acc = count / dataset.__len__()
+print(test_dataset.__len__())
+acc = count / test_dataset.__len__()
 print('acc: ', acc)

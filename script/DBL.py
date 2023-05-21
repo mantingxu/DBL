@@ -11,8 +11,8 @@ output_dim = 24
 class MyDBL(nn.Module):
     def __init__(self):
         super(MyDBL, self).__init__()
-        self.linearOne = nn.Linear(36, output_dim)
-        self.linearTwo = nn.Linear(36, output_dim)
+        self.linearOne = nn.Linear(36864, output_dim)
+        self.linearTwo = nn.Linear(36864, output_dim)
 
     def forward(self, fx, fi):
         fx = fx.view(fx.size(0), -1)

@@ -33,10 +33,13 @@ def get_vector(im_path):
 
     # Pass input image through feature extractor
     with torch.no_grad():
+        print(img_tensor.shape)
         feature_map = model.features(img_tensor)  # denseNet
-        feature_map = feature_map.mean(dim=1, keepdim=True)  # 取平均值，得到單通道的特徵地圖 (1, C, H, W) =>  (1, 1, H, W)
+        # print(feature_map.shape)
+        # feature_map = feature_map.mean(dim=1, keepdim=True)  # 取平均值，得到單通道的特徵地圖 (1, C, H, W) =>  (1, 1, H, W)
+        print(feature_map.shape)
         feature_vector = feature_map.view(1, -1)  # 將 feature_map 攤平成一個一維向量
-
+        print(feature_vector.shape)
         return feature_vector
 
 
@@ -92,13 +95,13 @@ denseNet_top3_predict = ['12448', '12222', '12083']
 for idx in range(len(denseNet_top3_predict)):
     id_to_label[denseNet_top3_predict[idx]] = idx
 
-print(id_to_label)
+# print(id_to_label)
 
 # f0 = get_top3_DBL(12448)
 # f1 = get_top3_DBL(12222)
 # f2 = get_top3_DBL(12083)
 for pill_id in denseNet_top3_predict:
-    query_pic_folder = '../dataset/train/{pill}/*.png'.format(pill=pill_id)
+    query_pic_folder = '../dataset/test/{pill}/*.png'.format(pill=pill_id)
     for query_pic_path in glob.glob(query_pic_folder):
         fx = get_vector(query_pic_path).cpu().numpy()
         f = []
@@ -113,7 +116,7 @@ for pill_id in denseNet_top3_predict:
         res_str = [str(fx), str(f0), str(f1), str(f2), str(label)]
 
         res = [fx, f0, f1, f2, label]
-        print(res)
+        # print(res)
         many_res.append(res)
 
 
@@ -121,5 +124,5 @@ myRes = np.zeros(len(many_res), dtype=object)
 for i in range(0, len(many_res)):
     myRes[i] = many_res[i]
 
-np.save('../numpy/myResTrain0520_1', myRes)
+np.save('../numpy/myResTest0520_2', myRes)
 # file = np.load('../numpy/myResTrain0520.npy', allow_pickle=True)

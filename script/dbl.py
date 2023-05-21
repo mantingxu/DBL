@@ -10,7 +10,7 @@ output_dim = 24
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-num_epochs = 500
+num_epochs = 50
 learning_rate = 0.0001
 inputDim = output_dim * 3
 
@@ -46,7 +46,7 @@ def saveModel():
     print('save')
 
 
-dataset = ExampleDataset('../numpy/myResTrain0520_1.npy')
+dataset = ExampleDataset('../numpy/myResTrain0520_2.npy')
 
 train_set, valid_set = torch.utils.data.random_split(dataset, [50 * 3, 25 * 3])
 train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=4, shuffle=True)

@@ -10,7 +10,7 @@ output_dim = 24
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-num_epochs = 50
+num_epochs = 300
 learning_rate = 0.0001
 inputDim = output_dim * 3
 
@@ -33,7 +33,8 @@ class ExampleDataset(Dataset):
         f2 = self.data[index][2]
         f3 = self.data[index][3]
         label = self.data[index][4]
-        return fx, f1, f2, f3, label
+        pred = self.data[index][5]
+        return fx, f1, f2, f3, label, pred
 
     # return the length of our dataset
     def __len__(self):
@@ -41,15 +42,15 @@ class ExampleDataset(Dataset):
 
 
 def saveModel():
-    path = "../weight/dbl3.pth"
+    path = "../weight/dbl6.pth"
     torch.save(model.state_dict(), path)
     print('save')
 
 
-dataset = ExampleDataset('../numpy/myResTrain0520_2.npy')
+dataset = ExampleDataset('../numpy/myResTrain0524_2.npy')
 
 train_set, valid_set = torch.utils.data.random_split(dataset, [50 * 3, 25 * 3])
-train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=4, shuffle=True)
+train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=8, shuffle=True)
 val_loader = torch.utils.data.DataLoader(dataset=valid_set, batch_size=1, shuffle=True)
 
 best_loss = 999
@@ -59,7 +60,7 @@ output_cat = []
 for epoch in range(num_epochs):
     total_val = 0
     total_loss = 0
-    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(train_loader):
+    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels, pred) in enumerate(train_loader):
         imagesQuery = imagesQuery.to(device)
         imagesOne = imagesOne.to(device)
         imagesTwo = imagesTwo.to(device)
@@ -86,7 +87,7 @@ for epoch in range(num_epochs):
         best_model_wts = copy.deepcopy(model.state_dict())
     # history.append(loss.item())
 
-    for j, (imagesQuery_val, imagesOne_val, imagesTwo_val, imagesThree_val, labels_val) in enumerate(val_loader):
+    for j, (imagesQuery_val, imagesOne_val, imagesTwo_val, imagesThree_val, labels_val, pred_val) in enumerate(val_loader):
         model.eval()
         imagesQuery_val = imagesQuery_val.to(device)
         imagesOne_val = imagesOne_val.to(device)

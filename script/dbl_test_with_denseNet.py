@@ -27,8 +27,9 @@ class ExampleDataset(Dataset):
         f2 = self.data[index][2]
         f3 = self.data[index][3]
         label = self.data[index][4]
-        # pred = self.data[index][5]
-        return fx, f1, f2, f3, label
+        pred = self.data[index][5]
+        file = self.data[index][6]
+        return fx, f1, f2, f3, label, pred, file
 
     # return the length of our dataset
     def __len__(self):
@@ -37,18 +38,18 @@ class ExampleDataset(Dataset):
 
 dataset = ExampleDataset('../numpy/myResTrain0520_1.npy')
 train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
-test_dataset = ExampleDataset('../numpy/myResTest0524_with_normal.npy')
+test_dataset = ExampleDataset('../numpy/myResTest0524_2.npy')
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=True)
 denseNet_top3_predict = ['12448', '12222', '12083']
 
-path = "../weight/dbl3.pth"
+path = "../weight/dbl6.pth"
 model.load_state_dict(torch.load(path))
 model.eval()
 count = 0
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 with torch.no_grad():
-    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels) in enumerate(test_loader):
+    for i, (imagesQuery, imagesOne, imagesTwo, imagesThree, labels, pred, file) in enumerate(test_loader):
         imagesQuery = imagesQuery.to(device)
         imagesOne = imagesOne.to(device)
         imagesTwo = imagesTwo.to(device)
@@ -56,9 +57,10 @@ with torch.no_grad():
         labels = labels.to(device)
         outputs = model(imagesQuery, imagesOne, imagesTwo, imagesThree)
         value, indices = torch.max(outputs.data, 1)
-        # index = denseNet_top3_predict.index(pred[0])
-        # print(index, indices.item())
         count += (indices == labels).sum().item()
+        index = denseNet_top3_predict.index(pred[0]) if pred[0] in denseNet_top3_predict else -1
+        print(index, indices.item(),labels.item(),file)
+
         # if indices_label.item() == indices.item():
         #     count += 1
 

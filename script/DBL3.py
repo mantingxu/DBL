@@ -49,11 +49,6 @@ class DBLANet(nn.Module):
 
     def forward(self, fx, f_list):
         f_list = f_list.squeeze(-2)
-        #print(f_list.shape)
-        # embedding layer output have many layers(based on classes)
-        #f_split = torch.split(f_list, 1, dim=1)
-        #f_split = torch.stack(f_split)
-        #f_split = f_split.squeeze(-1)
         embedding_f1 = self.embedding(f_list[0])
         embedding_f2 = self.embedding(f_list[1])
         embedding_f3 = self.embedding(f_list[2])

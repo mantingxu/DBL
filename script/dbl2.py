@@ -7,11 +7,11 @@ from DBL2 import DBLANet
 import matplotlib.pyplot as plt
 import json
 
-output_dim = 64
+output_dim = 128
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-num_epochs = 80
+num_epochs = 30
 learning_rate = 0.0001
 inputDim = output_dim * 3
 
@@ -42,7 +42,7 @@ class ExampleDataset(Dataset):
 
 
 def saveModel():
-    path = "../weight/dbl12.pth"
+    path = "../weight/dbl14.pth"
     torch.save(model.state_dict(), path)
     print('save')
 
@@ -62,14 +62,16 @@ except Exception as e:
     exit(-1)
 
 keys = []
-denseNet_top3_predict = ['12448', '12222', '12083']
+denseNet_top3_predict = ['12448', '12222', '12083', '325', '2311', '2321', '4061', '4115', '6356']
 for pill in denseNet_top3_predict:
     key = get_key_from_value(class_indict, pill)
     keys.append(key)
 
-dataset = ExampleDataset('../numpy/myResTrain0601.npy')
-
-train_set, valid_set = torch.utils.data.random_split(dataset, [50 * 3, 25 * 3])
+dataset = ExampleDataset('../numpy/myResTrainAug.npy')
+print(dataset.__len__())
+train_length = int(dataset.__len__() * 0.6)
+valid_length = dataset.__len__() - train_length
+train_set, valid_set = torch.utils.data.random_split(dataset, [train_length, valid_length])
 train_loader = torch.utils.data.DataLoader(dataset=train_set, batch_size=8, shuffle=True)
 val_loader = torch.utils.data.DataLoader(dataset=valid_set, batch_size=1, shuffle=True)
 
@@ -77,21 +79,33 @@ best_loss = 999
 history = []
 val_history = []
 output_cat = []
-print(model.embedding.weight)
+
 for epoch in range(num_epochs):
     total_val = 0
     total_loss = 0
+    print(epoch)
     for i, (imagesQuery, pillIdList, labels, file) in enumerate(train_loader):
-        #print(model.dblOne.linearOne.weight)
-        print(model.embedding.weight)
         imagesQuery = imagesQuery.to(device)
         pillIdList = torch.stack(pillIdList, dim=1)
         pillIdList = torch.LongTensor(pillIdList)
         pillIdList = pillIdList.to(device)
+
         labels = list(labels)
         labels = [int(x) for x in labels]
         labels = torch.LongTensor(labels)
         labels = labels.to(device)
+        labels_idx = []
+        for idx in range(pillIdList.size(0)):
+            #print(pillIdList[idx])
+            #print(labels[idx])
+            #print(file[idx])
+
+            labels_idx.append((pillIdList[idx] == labels[idx]).nonzero(as_tuple=True)[0].item())
+        labels_idx = torch.LongTensor(labels_idx)
+        labels_idx = labels_idx.to(device)
+        #print(pillIdList)
+        #print(labels)
+        #print(labels_idx)
         # init optimizer
         optimizer.zero_grad()
 
@@ -99,7 +113,7 @@ for epoch in range(num_epochs):
         # forward -> backward -> update
         outputs = model(imagesQuery, pillIdList)
         value, indices = torch.max(outputs.data, 1)
-        loss = criterion(outputs, labels)
+        loss = criterion(outputs, labels_idx)
         total_loss += loss.item()
         #for param in model.named_parameters():
         #    print(param[0], param[1].requires_grad)
@@ -128,12 +142,17 @@ for epoch in range(num_epochs):
         labels_val = [int(x) for x in labels_val]
         labels_val = torch.LongTensor(labels_val)
         labels_val = labels_val.to(device)
+        labels_idx_val = []
+        for idx_val in range(pillIdList_val.size(0)):
+            labels_idx_val.append((pillIdList_val[idx_val] == labels_val[idx_val]).nonzero(as_tuple=True)[0].item())
+        labels_idx_val = torch.LongTensor(labels_idx_val)
+        labels_idx_val = labels_idx_val.to(device)
         # init optimizer
         optimizer.zero_grad()
         with torch.no_grad():
             outputs = model(imagesQuery_val, pillIdList_val)
             value, indices = torch.max(outputs.data, 1)
-            total_val += (indices == labels_val).sum().item()
+            total_val += (indices == labels_idx_val).sum().item()
 
     acc_val = total_val / valid_set.__len__()
     print('val acc: ', acc_val)

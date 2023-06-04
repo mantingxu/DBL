@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-output_dim = 64
+output_dim = 128
 
 
 class MyDBL(nn.Module):
@@ -25,7 +25,7 @@ class MyMLP(nn.Module):
         super(MyMLP, self).__init__()
         self.linearOne = nn.Linear(inputDim, 128)
         self.linearTwo = nn.Linear(128, 64)
-        self.linearThree = nn.Linear(64, 36)
+        self.linearThree = nn.Linear(64, 3)
         self.ReLUOne = nn.ReLU()
         self.ReLUTwo = nn.ReLU()
 

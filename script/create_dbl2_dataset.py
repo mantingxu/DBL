@@ -61,12 +61,13 @@ def get_label(query_path):
 
 many_res = []
 #id_to_label = {}
-denseNet_top3_predict = ['12448', '12222', '12083']
+denseNet_top3_predict = ['12448', '12222', '12083', '325', '2311', '2321', '4061', '4115', '6356']
 #for idx in range(len(denseNet_top3_predict)):
 #    id_to_label[denseNet_top3_predict[idx]] = idx
 
 for pill_id in denseNet_top3_predict:
-    query_pic_folder = '../dataset/train/{pill}/*.png'.format(pill=pill_id)
+    print(pill_id)
+    query_pic_folder = '../dataset/train_template/{pill}/*.png'.format(pill=pill_id)
     for query_pic_path in glob.glob(query_pic_folder):
         file = query_pic_path.split('/')[-1]
         label = get_label(query_pic_path)
@@ -87,14 +88,15 @@ for pill_id in denseNet_top3_predict:
         ids = []
         for id in top5_id:
             ids.append(id)
-
-        res = [fx, ids, label, file]
-        print(ids)
-        many_res.append(res)
+        ids.sort()
+        if int(label) in ids:
+            res = [fx, ids, label, file]
+            print(ids)
+            many_res.append(res)
 
 myRes = np.zeros(len(many_res), dtype=object)
 for i in range(0, len(many_res)):
     myRes[i] = many_res[i]
 
-# np.save('../numpy/myResTrain0601', myRes)
+np.save('../numpy/myResTrainAug', myRes)
 

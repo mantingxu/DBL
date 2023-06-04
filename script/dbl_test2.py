@@ -6,7 +6,7 @@ import torch.nn.functional as Fun
 import copy
 from DBL2 import DBLANet
 
-output_dim = 64
+output_dim = 128
 inputDim = output_dim * 3
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -35,11 +35,12 @@ class ExampleDataset(Dataset):
 
 # dataset = ExampleDataset('../numpy/myResTrain0520_1.npy')
 # train_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=4, shuffle=True)
-test_dataset = ExampleDataset('../numpy/myResTest0601.npy')
+test_dataset = ExampleDataset('../numpy/myResTestAug.npy')
+print(test_dataset.__len__())
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1, shuffle=True)
-denseNet_top3_predict = ['12448', '12222', '12083']
+denseNet_top3_predict = ['12448', '12222', '12083', '325', '2311', '2321', '4061', '4115', '6356']
 
-path = "../weight/dbl12.pth"
+path = "../weight/dbl14.pth"
 model.load_state_dict(torch.load(path))
 model.eval()
 count = 0
@@ -55,15 +56,22 @@ with torch.no_grad():
         labels = [int(x) for x in labels]
         labels = torch.LongTensor(labels)
         labels = labels.to(device)
+        labels_idx = []
+        for idx in range(pillIdList.size(0)):
+            labels_idx.append((pillIdList[idx] == labels[idx]).nonzero(as_tuple=True)[0].item())
+        labels_idx = torch.LongTensor(labels_idx)
+        labels_idx = labels_idx.to(device)
 
         outputs = model(imagesQuery, pillIdList)
+        #print(outputs)
         value, indices = torch.max(outputs.data, 1)
         # index = denseNet_top3_predict.index(outputs.item[0])
-        # print(index, indices.item())
-        count += (indices == labels).sum().item()
+        #print(indices.item())
+        count += (indices == labels_idx).sum().item()
 
-        if indices.item() != labels.item():
+        if indices.item() != labels_idx.item():
             print(indices.item())
+            print(pillIdList)
             print(file)
         #for x in range(24):
         #    if indices[x].item() != labels[x].item():
